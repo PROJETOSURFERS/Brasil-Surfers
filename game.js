@@ -1,41 +1,64 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let player = {
-    x: canvas.width / 2 - 15,
-    y: canvas.height - 60,
-    width: 30,
-    height: 30,
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const player = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 100,
+    width: 50,
+    height: 50,
     speed: 5,
-    color: "green"
+    dx: 0,
 };
 
-let keys = {
-    left: false,
-    right: false
-};
+let isLeft = false;
+let isRight = false;
 
-canvas.addEventListener("touchstart", (event) => {
-    let touchX = event.touches[0].clientX;
-    if (touchX < canvas.width / 2) {
-        keys.left = true;
-        keys.right = false;
-    } else {
-        keys.right = true;
-        keys.left = false;
+document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+        isLeft = true;
+    }
+    if (event.key === "ArrowRight") {
+        isRight = true;
+});
+
+document.addEventListener("keyup", (event) => {
+    if (event.key === "ArrowLeft") {
+        isLeft = false;
+    }
+    if (event.key === "ArrowRight") {
+        isRight = false;
     }
 });
 
-canvas.addEventListener("touchend", () => {
-    keys.left = false;
-    keys.right = false;
-});
+function movePlayer() {
+    if (isLeft && player.x > 0) {
+        player.dx = -player.speed;
+    } else if (isRight && player.x + player.width < canvas.width) {
+        player.dx = player.speed;
+    } else {
+        player.dx = 0;
+    }
+
+    player.x += player.dx;
+}
 
 function drawPlayer() {
-    ctx.fillStyle = player.color;
+    ctx.fillStyle = "#ffcc00";
     ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-function movePlayer() {
-    if (keys.left && player.x > 0) {
-        player.x -= player.speed;
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function gameLoop() {
+    clearCanvas();
+    movePlayer();
+    drawPlayer();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
